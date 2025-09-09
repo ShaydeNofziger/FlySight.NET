@@ -15,15 +15,20 @@ This README documents what the library does, its design principles, and practica
 
 ## Installation
 
-- Target framework: `netstandard2.1` (works from .NET Core/.NET 5+/Mono that supports netstandard2.1).
-- Add a project reference to the `FlySight` project, or build and reference the assembly. If packaged, install via NuGet when available.
-
-Example (add project reference inside solution):
+Install the released package from NuGet.org:
 
 ```pwsh
-# from repository root
-dotnet add tests/FlySight.Tests/FlySight.Tests.csproj reference src/FlySight/FlySight.csproj
+# using the .NET CLI
+dotnet add package FlySight
+
+# or using PackageReference in your project file
+<PackageReference Include="FlySight" Version="1.0.0" />
+
+# or using the Package Manager Console in Visual Studio
+Install-Package FlySight
 ```
+
+Package page: https://www.nuget.org/packages/FlySight/
 
 ## Quick start
 
