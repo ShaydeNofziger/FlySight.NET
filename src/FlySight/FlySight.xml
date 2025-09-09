@@ -1,0 +1,158 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FlySight</name>
+    </assembly>
+    <members>
+        <member name="T:FlySight.FlySightReader">
+            <summary>
+            Provides streaming parsers for FlySight CSV logs.
+            Use <see cref="M:FlySight.FlySightReader.Read(System.IO.TextReader,System.Threading.CancellationToken)"/> / <see cref="M:FlySight.FlySightReader.ReadAsync(System.IO.TextReader,System.Threading.CancellationToken)"/> when you already have a <see cref="T:System.IO.TextReader"/>,
+            or use <see cref="M:FlySight.FlySightReader.ReadFile(System.String,System.Threading.CancellationToken)"/> / <see cref="M:FlySight.FlySightReader.ReadFileAsync(System.String,System.Threading.CancellationToken)"/> to read directly from a file path.
+            The reader tolerates blank lines and comment lines (starting with '#').
+            </summary>
+        </member>
+        <member name="M:FlySight.FlySightReader.ReadFile(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Opens <paramref name="path"/> and returns a lazily-evaluated sequence of parsed <see cref="T:FlySight.Models.FlySightSample"/>.
+            This method streams the file and does not buffer the entire file in memory. The returned sequence is consumed on-demand.
+            </summary>
+            <param name="path">Path to a FlySight CSV file.</param>
+            <param name="cancellationToken">Optional cancellation token used while reading.</param>
+            <returns>An <see cref="T:System.Collections.Generic.IEnumerable`1"/> yielding parsed samples.</returns>
+            <exception cref="T:System.IO.FileNotFoundException">If the file does not exist.</exception>
+        </member>
+        <member name="M:FlySight.FlySightReader.Read(System.IO.TextReader,System.Threading.CancellationToken)">
+            <summary>
+            Parses FlySight CSV data from a <see cref="T:System.IO.TextReader"/> and yields parsed <see cref="T:FlySight.Models.FlySightSample"/> instances.
+            The parsing is done line-by-line and is tolerant of malformed rows (these are skipped).
+            </summary>
+            <param name="reader">A <see cref="T:System.IO.TextReader"/> providing CSV data.</param>
+            <param name="cancellationToken">Optional cancellation token to stop parsing early.</param>
+            <returns>An <see cref="T:System.Collections.Generic.IEnumerable`1"/> producing samples as they are parsed.</returns>
+        </member>
+        <member name="M:FlySight.FlySightReader.ReadFileAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously opens the specified file and yields parsed <see cref="T:FlySight.Models.FlySightSample"/> instances.
+            Use this in async contexts to avoid blocking threads when reading from disk.
+            </summary>
+            <param name="path">Path to a FlySight CSV file.</param>
+            <param name="cancellationToken">Optional cancellation token.</param>
+            <returns>An async enumerable of parsed samples.</returns>
+        </member>
+        <member name="M:FlySight.FlySightReader.ReadAsync(System.IO.TextReader,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously parses CSV data supplied by a <see cref="T:System.IO.TextReader"/>, yielding <see cref="T:FlySight.Models.FlySightSample"/> instances.
+            This method reads lines with <see cref="M:System.IO.TextReader.ReadLineAsync"/> and yields samples as they are parsed.
+            </summary>
+            <param name="reader">A <see cref="T:System.IO.TextReader"/> to read CSV text from.</param>
+            <param name="cancellationToken">Optional cancellation token.</param>
+            <returns>An <see cref="T:System.Collections.Generic.IAsyncEnumerable`1"/> of parsed samples.</returns>
+        </member>
+        <member name="T:FlySight.Models.FlySightSample">
+            <summary>
+            Represents a single parsed sample/row from a FlySight CSV log.
+            Instances are immutable and intended to be lightweight DTOs for downstream processing.
+            </summary>
+        </member>
+        <member name="P:FlySight.Models.FlySightSample.Time">
+            <summary>Timestamp for this sample, normalized to UTC.</summary>
+        </member>
+        <member name="P:FlySight.Models.FlySightSample.Latitude">
+            <summary>Latitude in decimal degrees.</summary>
+        </member>
+        <member name="P:FlySight.Models.FlySightSample.Longitude">
+            <summary>Longitude in decimal degrees.</summary>
+        </member>
+        <member name="P:FlySight.Models.FlySightSample.HeightMSL">
+            <summary>Height above mean sea level (meters) as reported in the file.</summary>
+        </member>
+        <member name="P:FlySight.Models.FlySightSample.VelocityNorth">
+            <summary>Velocity component north (m/s).</summary>
+        </member>
+        <member name="P:FlySight.Models.FlySightSample.VelocityEast">
+            <summary>Velocity component east (m/s).</summary>
+        </member>
+        <member name="P:FlySight.Models.FlySightSample.VelocityDown">
+            <summary>Velocity component down (m/s).</summary>
+        </member>
+        <member name="P:FlySight.Models.FlySightSample.HorizontalAccuracy">
+            <summary>Optional horizontal accuracy in meters, if present.</summary>
+        </member>
+        <member name="P:FlySight.Models.FlySightSample.VerticalAccuracy">
+            <summary>Optional vertical accuracy in meters, if present.</summary>
+        </member>
+        <member name="P:FlySight.Models.FlySightSample.SpeedAccuracy">
+            <summary>Optional speed accuracy in meters/sec, if present.</summary>
+        </member>
+        <member name="P:FlySight.Models.FlySightSample.GpsFix">
+            <summary>Optional GPS fix type/quality.</summary>
+        </member>
+        <member name="P:FlySight.Models.FlySightSample.Satellites">
+            <summary>Optional satellite count (numSV).</summary>
+        </member>
+        <member name="P:FlySight.Models.FlySightSample.Raw">
+            <summary>
+            All raw fields read for this row, keyed by header name when available or by positional keys.
+            This includes both known standard fields and any extra fields present in the file (see <see cref="P:FlySight.Models.FlySightSample.Extra"/>).
+            </summary>
+        </member>
+        <member name="P:FlySight.Models.FlySightSample.Extra">
+            <summary>
+            Extra/unrecognized fields that appear to the right of standard columns. Keys are either header names
+            (when a header row exists) or positional names like <c>col12</c>.
+            </summary>
+        </member>
+        <member name="P:FlySight.Models.FlySightSample.Speed3D">
+            <summary>Computed 3D speed derived from the three velocity components.</summary>
+        </member>
+        <member name="T:FlySight.QueryExtensions">
+            <summary>
+            LINQ-style helpers for querying sequences of <see cref="T:FlySight.Models.FlySightSample"/>.
+            These helpers are implemented as deferred-execution enumerable transforms so they compose efficiently with streaming readers.
+            </summary>
+        </member>
+        <member name="M:FlySight.QueryExtensions.Between(System.Collections.Generic.IEnumerable{FlySight.Models.FlySightSample},System.Nullable{System.DateTimeOffset},System.Nullable{System.DateTimeOffset})">
+            <summary>
+            Filters the sequence to samples whose <see cref="P:FlySight.Models.FlySightSample.Time"/> falls within the specified half-open interval.
+            </summary>
+            <param name="source">Source sequence.</param>
+            <param name="startInclusive">Start time (inclusive) or <c>null</c> for no lower bound.</param>
+            <param name="endExclusive">End time (exclusive) or <c>null</c> for no upper bound.</param>
+            <returns>Filtered sequence preserving streaming semantics.</returns>
+        </member>
+        <member name="M:FlySight.QueryExtensions.WhereFixAtLeast(System.Collections.Generic.IEnumerable{FlySight.Models.FlySightSample},System.Int32)">
+            <summary>
+            Filters samples to those with GPS fix value greater than or equal to <paramref name="minFix"/>.
+            Missing <see cref="P:FlySight.Models.FlySightSample.GpsFix"/> values are treated as zero.
+            </summary>
+        </member>
+        <member name="M:FlySight.QueryExtensions.WhereFix3D(System.Collections.Generic.IEnumerable{FlySight.Models.FlySightSample})">
+            <summary>
+            Filters samples to those with a 3D GPS fix (equivalent to <c>WhereFixAtLeast(3)</c>).
+            </summary>
+            <param name="source">Source sequence.</param>
+        </member>
+        <member name="M:FlySight.QueryExtensions.WithAccuracy(System.Collections.Generic.IEnumerable{FlySight.Models.FlySightSample},System.Nullable{System.Double},System.Nullable{System.Double})">
+            <summary>
+            Filters samples to those with horizontal and/or vertical accuracies less than or equal to the specified thresholds.
+            If an accuracy value is missing for a sample, that sample will be excluded when a corresponding max is supplied.
+            </summary>
+            <param name="source">Source sequence.</param>
+            <param name="maxHorizontalMeters">Maximum horizontal accuracy in meters, or <c>null</c> to ignore.</param>
+            <param name="maxVerticalMeters">Maximum vertical accuracy in meters, or <c>null</c> to ignore.</param>
+        </member>
+        <member name="M:FlySight.QueryExtensions.WithinBounds(System.Collections.Generic.IEnumerable{FlySight.Models.FlySightSample},System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            Filters samples to those that fall within the given latitude/longitude rectangle (inclusive).
+            </summary>
+        </member>
+        <member name="M:FlySight.QueryExtensions.Summary(System.Collections.Generic.IEnumerable{FlySight.Models.FlySightSample})">
+            <summary>
+            Produces a small summary tuple containing the first sample time, last sample time, and count of samples.
+            Returns <c>null</c> if the source sequence contains no samples.
+            </summary>
+            <returns>A tuple of (start, end, count) or <c>null</c> when empty.</returns>
+        </member>
+    </members>
+</doc>

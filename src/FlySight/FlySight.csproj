@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+  <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  <!-- place XML docs in the build output folder using the assembly name -->
+  <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
+  <!-- Produce deterministic builds and portable PDBs for reproducible packages -->
+  <Deterministic>true</Deterministic>
+  <DebugType>portable</DebugType>
+  <!-- PathMap reduces non-deterministic absolute paths embedded in PDBs to a stable form -->
+  <PathMap>$(MSBuildProjectDirectory)=.</PathMap>
+    <!-- Package metadata (customize as appropriate) -->
+    <PackageId>FlySight</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>FlySight contributors</Authors>
+    <Description>Streaming parser and helpers for FlySight CSV logs.</Description>
+  <!-- Repository and licensing metadata -->
+  <RepositoryUrl>https://github.com/ShaydeNofziger/FlySight.NET</RepositoryUrl>
+  <RepositoryType>git</RepositoryType>
+  <PackageProjectUrl>https://github.com/ShaydeNofziger/FlySight.NET</PackageProjectUrl>
+  <!-- Use SPDX expression when possible (e.g., MIT, Apache-2.0) -->
+  <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  <!-- Optional readme to show on the NuGet package page (place README.md in project root) -->
+  <PackageReadmeFile>README.md</PackageReadmeFile>
+  <!-- Produce symbol package and embed source information for debugging/publishing -->
+  <IncludeSymbols>true</IncludeSymbols>
+  <IncludeSource>true</IncludeSource>
+  <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  <PublishRepositoryUrl>true</PublishRepositoryUrl>
+  <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <!-- Note: XML documentation files are automatically included by the pack task when <GenerateDocumentationFile> is true.
+       The explicit inclusion previously caused NU5118 duplicate-file warnings, so it has been removed. -->
+
+  <!-- Include repository root README.md in the package root so PackageReadmeFile works -->
+  <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>true</Pack>
+      <PackagePath>README.md</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,6 @@
+# Sample FlySight data for unit tests
+# Full header + sample rows matching parser expectations
+time,lat,lon,hMSL,velN,velE,velD,hAcc,vAcc,sAcc,gpsFix,numSV
+2025-09-09T12:00:00Z,37.7749,-122.4194,100,0,0,0,1.0,1.0,1.0,3,7
+2025-09-09T12:00:01Z,37.7750,-122.4195,101,0,0,0,1.0,1.0,1.0,3,7
+2025-09-09T12:00:02Z,37.7751,-122.4196,102,0,0,0,1.0,1.0,1.0,3,7

@@ -1,0 +1,100 @@
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+bin/
+obj/
+*/bin/
+*/obj/
+
+# NuGet
+*.nupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+
+# Package directories
+.nuget/
+
+# Visual Studio Code
+.vscode/
+.history/
+
+# Rider
+.idea/
+*.sln.iml
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userprefs
+
+# Mono Auto Generated Files
+mono_crash.*
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+logs/
+*.log
+
+# Test results
+TestResults/
+coverage.opencover.xml
+coverage.cobertura.xml
+coverage/*
+coverage.*
+*.coverage
+*.coveragexml
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.lock
+
+# Editor backups
+*~
+*.orig
+
+# Dotnet tool and local settings
+.tooling/
+*.dotsettings.user
+
+# Windows image file caches
+ehthumbs.db
+
+# Rider and ReSharper caches
+_ReSharper*/
+*.DotSettings.user
+
+# Local secrets / development overrides
+appsettings.Development.json
+local.settings.json
+secrets.json
+
+# Certificates
+*.pfx
+*.key
+
+# Packaging
+artifacts/
+
+# JetBrains Rider
+.idea/
+
+# Generated documentation
+**/bin/**/FlySight.xml
+
+# Ignore compiled python files
+*.pyc
+
+# End of file
