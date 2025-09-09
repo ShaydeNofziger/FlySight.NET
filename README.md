@@ -179,7 +179,9 @@ Guidelines
 
 ## License
 
-This project follows the license present in the repository (add or update the LICENSE file as needed).
+This project is released under the MIT License — see `LICENSE.md` in the repository root for the full text.
+
+SPDX-License-Identifier: MIT
 
 ## Contact / Maintainers
 
