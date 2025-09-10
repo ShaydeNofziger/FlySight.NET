@@ -57,6 +57,9 @@ namespace FlySight
             string? line;
             string[] columns = Array.Empty<string>();
             bool headerDetected = false;
+            // For FlySight v2 TRACK.CSV files there are $COL, $UNIT, $DATA and $GNSS lines.
+            // When we see a $COL line we should use the provided column names. $GNSS lines
+            // are data rows prefixed with the record type which we strip before parsing.
 
             while ((line = reader.ReadLine()) != null)
             {
@@ -64,6 +67,46 @@ namespace FlySight
                 lineNum++;
                 if (IsSkippable(line))
                 {
+                    continue;
+                }
+
+                // FlySight v2 metadata: lines beginning with '$' may contain useful info.
+                var trimmed = line.TrimStart();
+                if (trimmed.StartsWith("$COL", StringComparison.OrdinalIgnoreCase))
+                {
+                    // $COL,GNSS,time,lat,... or $COL,GNSS,... — pick column names after the first (and optional second) token
+                    var cols = Csv.SplitLine(trimmed);
+                    int start = 1;
+                    if (cols.Count > 1 && cols[1].Equals("GNSS", StringComparison.OrdinalIgnoreCase)) start = 2;
+                    columns = cols.Skip(start).Select(f => f.Trim()).Where(f => f.Length > 0).ToArray();
+                    headerDetected = true;
+                    continue;
+                }
+
+                if (trimmed.StartsWith("$DATA", StringComparison.OrdinalIgnoreCase))
+                {
+                    // start of data section — columns should already be set by $COL; if not, fall back to defaults
+                    if (columns.Length == 0) columns = DefaultColumns;
+                    headerDetected = true;
+                    continue;
+                }
+
+                if (trimmed.StartsWith("$GNSS", StringComparison.OrdinalIgnoreCase) || trimmed.StartsWith("$GPS", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Data row prefixed with record type; strip the first field and parse the rest
+                    var fields = Csv.SplitLine(trimmed).ToArray();
+                    if (fields.Length > 0)
+                    {
+                        // If the line is like "$GNSS,2024-...", first token is "$GNSS" then data follows
+                            var rowFields = fields.Skip(1).ToArray();
+                        if (!headerDetected)
+                        {
+                            // no header specified earlier; assume default mapping
+                            columns = DefaultColumns;
+                            headerDetected = true;
+                        }
+                        foreach (var sample in ParseDataLine(rowFields, columns, lineNum)) yield return sample;
+                    }
                     continue;
                 }
 
@@ -89,8 +132,8 @@ namespace FlySight
                     }
                 }
 
-                var dataFields = Csv.SplitLine(line);
-                foreach (var sample in ParseDataLine(dataFields, columns, lineNum))
+                var dataFieldsSync = Csv.SplitLine(line);
+                foreach (var sample in ParseDataLine(dataFieldsSync, columns, lineNum))
                 {
                     yield return sample;
                 }
@@ -134,6 +177,40 @@ namespace FlySight
                 lineNum++;
                 if (IsSkippable(line))
                 {
+                    continue;
+                }
+
+                var trimmed = line.TrimStart();
+                if (trimmed.StartsWith("$COL", StringComparison.OrdinalIgnoreCase))
+                {
+                    var cols = Csv.SplitLine(trimmed);
+                    int start = 1;
+                    if (cols.Count > 1 && cols[1].Equals("GNSS", StringComparison.OrdinalIgnoreCase)) start = 2;
+                    columns = cols.Skip(start).Select(f => f.Trim()).Where(f => f.Length > 0).ToArray();
+                    headerDetected = true;
+                    continue;
+                }
+
+                if (trimmed.StartsWith("$DATA", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (columns.Length == 0) columns = DefaultColumns;
+                    headerDetected = true;
+                    continue;
+                }
+
+                if (trimmed.StartsWith("$GNSS", StringComparison.OrdinalIgnoreCase) || trimmed.StartsWith("$GPS", StringComparison.OrdinalIgnoreCase))
+                {
+                    var fields = Csv.SplitLine(trimmed).ToArray();
+                    if (fields.Length > 0)
+                    {
+                        var rowFields = fields.Skip(1).ToArray();
+                        if (!headerDetected)
+                        {
+                            columns = DefaultColumns;
+                            headerDetected = true;
+                        }
+                            foreach (var sample in ParseDataLine(rowFields, columns, lineNum)) yield return sample;
+                    }
                     continue;
                 }
 

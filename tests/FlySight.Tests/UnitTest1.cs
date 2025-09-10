@@ -284,4 +284,27 @@ public class ParserTests
         Assert.Equal(TimeSpan.Zero, s2.Time.Offset); // normalized to UTC
         Assert.Equal(new DateTimeOffset(2025,1,1,10,34,56,TimeSpan.Zero), s2.Time);
     }
+
+    [Fact]
+    public void Parses_TrackCsv_FlySight2_Format()
+    {
+        var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TRACK.CSV");
+        Assert.True(File.Exists(path), $"TRACK.CSV not found at {path}");
+
+        using var sr = new StreamReader(path);
+        var samples = FlySightReader.Read(sr).ToList();
+        Assert.True(samples.Count > 10, "expected many GNSS samples");
+
+        // Check first sample values from the provided TRACK.CSV
+        var first = samples[0];
+        Assert.Equal(DateTimeOffset.Parse("2024-06-28T15:16:27.800Z"), first.Time);
+        Assert.Equal(34.7751285, first.Latitude, 7);
+        Assert.Equal(-81.1784374, first.Longitude, 7);
+        Assert.Equal(884.849, first.HeightMSL, 3);
+
+        // spot-check a later sample for sanity
+        var later = samples[50];
+        Assert.Equal(DateTimeOffset.Parse("2024-06-28T15:16:38.600Z"), later.Time);
+        Assert.Equal(34.78, Math.Round(later.Latitude, 2));
+    }
 }
